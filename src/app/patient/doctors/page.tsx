@@ -25,7 +25,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth-context";
-import { Search, Star, Calendar, DollarSign, Stethoscope } from "lucide-react";
+import {
+  Search,
+  Star,
+  Calendar,
+  DollarSign,
+  Stethoscope,
+  Clock,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   notifyAppointmentBooked,
@@ -44,6 +51,13 @@ interface Doctor {
     rating: number;
     consultationFee: number;
   } | null;
+}
+
+interface Availability {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
 }
 
 const specializations = [
@@ -78,6 +92,16 @@ const symptomToSpecialty: Record<string, string> = {
   digestion: "Gastroenterology",
 };
 
+const DAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 export default function DoctorsPage() {
   const { token } = useAuth();
   const [doctors, setDoctors] = React.useState<Doctor[]>([]);
@@ -87,6 +111,9 @@ export default function DoctorsPage() {
   const [selectedDoctor, setSelectedDoctor] = React.useState<Doctor | null>(
     null,
   );
+  const [doctorAvailability, setDoctorAvailability] = React.useState<
+    Availability[]
+  >([]);
   const [bookingDate, setBookingDate] = React.useState("");
   const [bookingTime, setBookingTime] = React.useState("");
   const [symptoms, setSymptoms] = React.useState("");
@@ -106,6 +133,19 @@ export default function DoctorsPage() {
       setIsLoading(false);
     }
   }, []);
+
+  const fetchDoctorAvailability = async (doctorId: string) => {
+    try {
+      const res = await fetch(`/api/doctors/${doctorId}/availability`);
+      if (res.ok) {
+        const data = await res.json();
+        setDoctorAvailability(data);
+      }
+    } catch {
+      console.error("Failed to fetch availability");
+      setDoctorAvailability([]);
+    }
+  };
 
   const filterDoctors = React.useCallback(() => {
     let result = doctors;
@@ -153,6 +193,61 @@ export default function DoctorsPage() {
     setSpecialization("All");
   };
 
+  const handleSelectDoctor = (doctor: Doctor) => {
+    setSelectedDoctor(doctor);
+    fetchDoctorAvailability(doctor.id);
+    setBookingDate("");
+    setBookingTime("");
+  };
+
+  const getAvailableTimeSlots = (): string[] => {
+    if (!bookingDate || doctorAvailability.length === 0) return [];
+
+    const dayOfWeek = new Date(bookingDate).getDay();
+    const daySlots = doctorAvailability.filter(
+      (a) => a.dayOfWeek === dayOfWeek && a.isAvailable,
+    );
+
+    if (daySlots.length === 0) return [];
+
+    const slots: string[] = [];
+    daySlots.forEach((slot) => {
+      const [startHour, startMin] = slot.startTime.split(":").map(Number);
+      const [endHour, endMin] = slot.endTime.split(":").map(Number);
+
+      let currentHour = startHour;
+      let currentMin = startMin;
+
+      while (
+        currentHour < endHour ||
+        (currentHour === endHour && currentMin < endMin)
+      ) {
+        slots.push(
+          `${currentHour.toString().padStart(2, "0")}:${currentMin.toString().padStart(2, "0")}`,
+        );
+        currentMin += 30;
+        if (currentMin >= 60) {
+          currentMin = 0;
+          currentHour += 1;
+        }
+      }
+    });
+
+    return slots;
+  };
+
+  const getDayAvailabilityText = (): string => {
+    if (!bookingDate || doctorAvailability.length === 0) return "";
+    const dayOfWeek = new Date(bookingDate).getDay();
+    const daySlots = doctorAvailability.filter(
+      (a) => a.dayOfWeek === dayOfWeek && a.isAvailable,
+    );
+    if (daySlots.length === 0) {
+      return `${DAYS[dayOfWeek]}: Not available`;
+    }
+    return `${DAYS[dayOfWeek]}: ${daySlots.map((s) => `${s.startTime}-${s.endTime}`).join(", ")}`;
+  };
+
   const handleBook = async () => {
     if (!selectedDoctor || !bookingDate || !bookingTime) {
       toast.error("Please fill in all fields");
@@ -176,7 +271,6 @@ export default function DoctorsPage() {
 
       if (res.ok) {
         const data = await res.json();
-
         notifyAppointmentBooked(selectedDoctor.name, bookingDate, bookingTime);
         scheduleAllReminders(
           data.id,
@@ -197,15 +291,6 @@ export default function DoctorsPage() {
     } catch {
       toast.error("Something went wrong");
     }
-  };
-
-  const generateTimeSlots = () => {
-    const slots: string[] = [];
-    for (let i = 8; i <= 18; i++) {
-      slots.push(`${i.toString().padStart(2, "0")}:00`);
-      slots.push(`${i.toString().padStart(2, "0")}:30`);
-    }
-    return slots;
   };
 
   return (
@@ -309,17 +394,17 @@ export default function DoctorsPage() {
                   <DialogTrigger asChild>
                     <Button
                       className="w-full mt-4 bg-teal-600 hover:bg-teal-700"
-                      onClick={() => setSelectedDoctor(doctor)}
+                      onClick={() => handleSelectDoctor(doctor)}
                     >
                       <Calendar className="h-4 w-4 mr-2" />
                       Book Appointment
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-w-md">
                     <DialogHeader>
                       <DialogTitle>Book with {doctor.name}</DialogTitle>
                       <DialogDescription>
-                        Select a date and time for your consultation.
+                        Select an available date and time for your consultation.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 pt-4">
@@ -328,28 +413,48 @@ export default function DoctorsPage() {
                         <Input
                           type="date"
                           value={bookingDate}
-                          onChange={(e) => setBookingDate(e.target.value)}
+                          onChange={(e) => {
+                            setBookingDate(e.target.value);
+                            setBookingTime("");
+                          }}
                           min={new Date().toISOString().split("T")[0]}
                         />
+                        {bookingDate && (
+                          <p className="text-xs text-teal-600 mt-1 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {getDayAvailabilityText()}
+                          </p>
+                        )}
                       </div>
-                      <div>
-                        <Label>Time</Label>
-                        <Select
-                          value={bookingTime}
-                          onValueChange={setBookingTime}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {generateTimeSlots().map((slot) => (
-                              <SelectItem key={slot} value={slot}>
-                                {slot}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+
+                      {bookingDate && (
+                        <div>
+                          <Label>Time</Label>
+                          {getAvailableTimeSlots().length > 0 ? (
+                            <Select
+                              value={bookingTime}
+                              onValueChange={setBookingTime}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getAvailableTimeSlots().map((slot) => (
+                                  <SelectItem key={slot} value={slot}>
+                                    {slot}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm">
+                              No available slots on this day. Please select
+                              another date.
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div>
                         <Label>Symptoms / Reason for visit</Label>
                         <Textarea
@@ -358,8 +463,10 @@ export default function DoctorsPage() {
                           placeholder="Describe your symptoms..."
                         />
                       </div>
+
                       <Button
                         onClick={handleBook}
+                        disabled={!bookingTime}
                         className="w-full bg-teal-600 hover:bg-teal-700"
                       >
                         Confirm Booking

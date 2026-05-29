@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Bell, BellOff, Loader2, Check, X } from "lucide-react";
 import { toast } from "sonner";
-import { requestNotificationPermission } from "@/lib/notifications";
+import {
+  requestNotificationPermission,
+  onNotification,
+} from "@/lib/notifications";
 
 interface Notification {
   id: string;
@@ -27,6 +29,11 @@ function getInitialPermission(): NotificationPermission | "default" {
   return Notification.permission;
 }
 
+function getInitialToken(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem("token") || "";
+}
+
 export function NotificationButton() {
   const [permission, setPermission] = useState<
     NotificationPermission | "default"
@@ -35,12 +42,8 @@ export function NotificationButton() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
-  const [token, setToken] = useState("");
-
-  useEffect(() => {
-    const t = localStorage.getItem("token") || "";
-    setToken(t);
-  }, []);
+  const token = getInitialToken();
+  const hasPolled = useRef(false);
 
   const fetchNotifications = useCallback(async () => {
     if (!token) return;
@@ -60,10 +63,32 @@ export function NotificationButton() {
 
   // Poll every 10 seconds
   useEffect(() => {
+    if (!token || hasPolled.current) return;
+    hasPolled.current = true;
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
-  }, [fetchNotifications]);
+  }, [token, fetchNotifications]);
+
+  // Register callback to receive notifications from anywhere in the app
+  useEffect(() => {
+    const unsubscribe = onNotification((title, body) => {
+      setNotifications((prev) => {
+        const newNotif: Notification = {
+          id: Date.now().toString(),
+          title,
+          body,
+          read: false,
+          createdAt: new Date().toISOString(),
+        };
+        return [newNotif, ...prev].slice(0, 50);
+      });
+      setUnreadCount((prev) => prev + 1);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleEnable = async () => {
     setIsLoading(true);
@@ -191,7 +216,7 @@ export function NotificationButton() {
             >
               <div className="flex items-center gap-2 w-full">
                 {!notif.read && (
-                  <span className="h-2 w-2 bg-blue-500 rounded-full flex-shrink-0" />
+                  <span className="h-2 w-2 bg-blue-500 rounded-full shrink-0" />
                 )}
                 <p className="font-medium text-sm flex-1">{notif.title}</p>
                 <span className="text-xs text-gray-400">

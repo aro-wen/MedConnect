@@ -20,6 +20,7 @@ import {
   Calendar,
   FileText,
   LogIn,
+  Clock,
 } from "lucide-react";
 import { NotificationButton } from "@/components/notification-button";
 
@@ -139,6 +140,18 @@ export default function Navbar() {
                           <DropdownMenuItem>
                             <FileText className="mr-2 h-4 w-4" />
                             Medical Records
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href="/doctor/schedule">
+                          <DropdownMenuItem>
+                            <Clock className="mr-2 h-4 w-4" />
+                            Manage Schedule
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href="/doctor/profile">
+                          <DropdownMenuItem>
+                            <User className="mr-2 h-4 w-4" />
+                            Edit Profile
                           </DropdownMenuItem>
                         </Link>
                       </>
