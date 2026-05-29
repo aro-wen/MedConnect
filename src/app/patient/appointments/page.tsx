@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Calendar, Video, FileText, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { RescheduleDialog } from "@/components/reschedule-dialogue";
+import {
+  notifyAppointmentCancelled,
+  notifyAppointmentRescheduled,
+  clearReminders,
+  scheduleAllReminders,
+} from "@/lib/notifications";
 
 interface Appointment {
   id: string;
@@ -48,6 +55,9 @@ export default function PatientAppointments() {
 
   const handleCancel = async (id: string) => {
     try {
+      const apt = appointments.find((a) => a.id === id);
+      if (!apt) return;
+
       const res = await fetch(`/api/appointments/${id}`, {
         method: "PATCH",
         headers: {
@@ -56,13 +66,33 @@ export default function PatientAppointments() {
         },
         body: JSON.stringify({ status: "CANCELLED" }),
       });
+
       if (res.ok) {
+        clearReminders(id);
+        notifyAppointmentCancelled(apt.doctor.name, apt.date, apt.time);
         toast.success("Appointment cancelled");
         fetchAppointments();
       }
     } catch {
       toast.error("Failed to cancel");
     }
+  };
+
+  const handleReschedule = (
+    apt: Appointment,
+    newDate: string,
+    newTime: string,
+  ) => {
+    clearReminders(apt.id);
+    notifyAppointmentRescheduled(
+      apt.doctor.name,
+      apt.date,
+      apt.time,
+      newDate,
+      newTime,
+    );
+    scheduleAllReminders(apt.id, newDate, newTime, apt.doctor.name);
+    fetchAppointments();
   };
 
   const getStatusColor = (status: string) => {
@@ -75,6 +105,8 @@ export default function PatientAppointments() {
         return "bg-blue-100 text-blue-800";
       case "CANCELLED":
         return "bg-red-100 text-red-800";
+      case "RESCHEDULED":
+        return "bg-amber-100 text-amber-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -127,19 +159,22 @@ export default function PatientAppointments() {
                     <Badge className={getStatusColor(apt.status)}>
                       {apt.status}
                     </Badge>
-                    {apt.status === "CONFIRMED" && apt.meetingLink && (
-                      <Link href={`/patient/consultation/${apt.id}`}>
-                        <Button
-                          size="sm"
-                          className="bg-teal-600 hover:bg-teal-700"
-                        >
-                          <Video className="h-4 w-4 mr-1" />
-                          Join
-                        </Button>
-                      </Link>
-                    )}
+                    {(apt.status === "CONFIRMED" ||
+                      apt.status === "RESCHEDULED") &&
+                      apt.meetingLink && (
+                        <Link href={`/patient/consultation/${apt.id}`}>
+                          <Button
+                            size="sm"
+                            className="bg-teal-600 hover:bg-teal-700"
+                          >
+                            <Video className="h-4 w-4 mr-1" />
+                            Join
+                          </Button>
+                        </Link>
+                      )}
                     {(apt.status === "PENDING" ||
-                      apt.status === "CONFIRMED") && (
+                      apt.status === "CONFIRMED" ||
+                      apt.status === "RESCHEDULED") && (
                       <Button
                         size="sm"
                         variant="destructive"
@@ -149,6 +184,15 @@ export default function PatientAppointments() {
                         Cancel
                       </Button>
                     )}
+                    <RescheduleDialog
+                      appointmentId={apt.id}
+                      currentDate={apt.date}
+                      currentTime={apt.time}
+                      doctorName={apt.doctor.name}
+                      onReschedule={(newDate, newTime) =>
+                        handleReschedule(apt, newDate, newTime)
+                      }
+                    />
                     {apt.record && (
                       <Link href="/patient/records">
                         <Button size="sm" variant="outline">

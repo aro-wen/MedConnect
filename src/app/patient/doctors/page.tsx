@@ -27,6 +27,10 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { Search, Star, Calendar, DollarSign, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
+import {
+  notifyAppointmentBooked,
+  scheduleAllReminders,
+} from "@/lib/notifications";
 
 interface Doctor {
   id: string;
@@ -171,6 +175,16 @@ export default function DoctorsPage() {
       });
 
       if (res.ok) {
+        const data = await res.json();
+
+        notifyAppointmentBooked(selectedDoctor.name, bookingDate, bookingTime);
+        scheduleAllReminders(
+          data.id,
+          bookingDate,
+          bookingTime,
+          selectedDoctor.name,
+        );
+
         toast.success("Appointment booked successfully!");
         setSelectedDoctor(null);
         setBookingDate("");

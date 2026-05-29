@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
+import { createNotification } from "@/lib/notification-db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,7 +62,25 @@ export async function POST(req: NextRequest) {
         status: "PENDING",
         meetingLink: `https://meet.jit.si/medconnect-${Date.now()}`,
       },
+      include: {
+        doctor: { select: { name: true, id: true } },
+        patient: { select: { name: true, id: true } },
+      },
     });
+
+    // Notify doctor about new booking
+    await createNotification(
+      appointment.doctorId,
+      "New Appointment Request",
+      `${appointment.patient.name} booked an appointment for ${new Date(date).toLocaleDateString()} at ${time}.`,
+    );
+
+    // Notify patient about successful booking
+    await createNotification(
+      appointment.patientId,
+      "Appointment Booked!",
+      `Your appointment with ${appointment.doctor.name} is scheduled for ${new Date(date).toLocaleDateString()} at ${time}.`,
+    );
 
     return NextResponse.json(appointment);
   } catch (error) {

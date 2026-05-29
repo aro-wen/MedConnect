@@ -19,9 +19,9 @@ import {
   LayoutDashboard,
   Calendar,
   FileText,
-  Settings,
   LogIn,
 } from "lucide-react";
+import { NotificationButton } from "@/components/notification-button";
 
 export default function Navbar() {
   const { user, logout, isLoading } = useAuth();
@@ -68,6 +68,7 @@ export default function Navbar() {
     <nav className="border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
+          {/* Left: Logo + Nav Links */}
           <div className="flex items-center gap-8">
             <Link href={getDashboardLink()} className="flex items-center gap-2">
               <Stethoscope className="h-8 w-8 text-teal-600" />
@@ -93,95 +94,106 @@ export default function Navbar() {
             )}
           </div>
 
-          {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600 hidden sm:inline">
-                {user.role === "DOCTOR" ? "Doctor" : "Patient"} Portal
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.image} alt={user.name} />
-                      <AvatarFallback>{user.name?.[0]}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <Link href={getDashboardLink()}>
-                    <DropdownMenuItem>
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
+          {/* Right: Notification + User */}
+          <div className="flex items-center gap-4">
+            <NotificationButton />
+
+            {user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600 hidden sm:inline">
+                  {user.role === "DOCTOR" ? "Doctor" : "Patient"} Portal
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full"
+                    >
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarFallback>{user.name?.[0]}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <Link href={getDashboardLink()}>
+                      <DropdownMenuItem>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </DropdownMenuItem>
+                    </Link>
+                    {user.role === "DOCTOR" ? (
+                      <>
+                        <Link href="/doctor/appointments">
+                          <DropdownMenuItem>
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Appointments
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href="/doctor/records">
+                          <DropdownMenuItem>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Medical Records
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link href="/patient/doctors">
+                          <DropdownMenuItem>
+                            <Stethoscope className="mr-2 h-4 w-4" />
+                            Find Doctors
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href="/patient/appointments">
+                          <DropdownMenuItem>
+                            <Calendar className="mr-2 h-4 w-4" />
+                            My Appointments
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href="/patient/records">
+                          <DropdownMenuItem>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Medical Records
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href="/patient/profile">
+                          <DropdownMenuItem>
+                            <User className="mr-2 h-4 w-4" />
+                            Edit Profile
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
                     </DropdownMenuItem>
-                  </Link>
-                  {user.role === "DOCTOR" ? (
-                    <>
-                      <Link href="/doctor/appointments">
-                        <DropdownMenuItem>
-                          <Calendar className="mr-2 h-4 w-4" />
-                          Appointments
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link href="/doctor/records">
-                        <DropdownMenuItem>
-                          <FileText className="mr-2 h-4 w-4" />
-                          Medical Records
-                        </DropdownMenuItem>
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <Link href="/patient/doctors">
-                        <DropdownMenuItem>
-                          <Stethoscope className="mr-2 h-4 w-4" />
-                          Find Doctors
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link href="/patient/appointments">
-                        <DropdownMenuItem>
-                          <Calendar className="mr-2 h-4 w-4" />
-                          My Appointments
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link href="/patient/records">
-                        <DropdownMenuItem>
-                          <FileText className="mr-2 h-4 w-4" />
-                          Medical Records
-                        </DropdownMenuItem>
-                      </Link>
-                    </>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm" className="bg-teal-600 hover:bg-teal-700">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login">
+                  <Button variant="ghost" size="sm">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm" className="bg-teal-600 hover:bg-teal-700">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

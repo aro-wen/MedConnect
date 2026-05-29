@@ -18,8 +18,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Calendar, Video, FileText, CheckCircle, XCircle } from "lucide-react";
+import { Calendar, Video, FileText, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import {
+  notifyStatusConfirmed,
+  notifyStatusCompleted,
+  clearReminders,
+} from "@/lib/notifications";
 
 interface Appointment {
   id: string;
@@ -63,6 +68,9 @@ export default function DoctorAppointments() {
   }, [fetchAppointments]);
 
   const handleConfirm = async (id: string) => {
+    const apt = appointments.find((a) => a.id === id);
+    if (!apt) return;
+
     try {
       const res = await fetch(`/api/appointments/${id}`, {
         method: "PATCH",
@@ -73,6 +81,7 @@ export default function DoctorAppointments() {
         body: JSON.stringify({ status: "CONFIRMED" }),
       });
       if (res.ok) {
+        notifyStatusConfirmed(apt.patient.name, apt.date, apt.time);
         toast.success("Appointment confirmed");
         fetchAppointments();
       }
@@ -103,6 +112,23 @@ export default function DoctorAppointments() {
       });
 
       if (res.ok) {
+        // Mark appointment as COMPLETED
+        await fetch(`/api/appointments/${selectedAppointment.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "COMPLETED" }),
+        });
+
+        clearReminders(selectedAppointment.id);
+        notifyStatusCompleted(
+          selectedAppointment.patient.name,
+          selectedAppointment.date,
+          selectedAppointment.time,
+        );
+
         toast.success("Consultation completed and record saved");
         setSelectedAppointment(null);
         setDiagnosis("");
@@ -125,6 +151,8 @@ export default function DoctorAppointments() {
         return "bg-blue-100 text-blue-800";
       case "CANCELLED":
         return "bg-red-100 text-red-800";
+      case "RESCHEDULED":
+        return "bg-amber-100 text-amber-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -189,18 +217,21 @@ export default function DoctorAppointments() {
                         Confirm
                       </Button>
                     )}
-                    {apt.status === "CONFIRMED" && apt.meetingLink && (
-                      <Link href={`/doctor/consultation/${apt.id}`}>
-                        <Button
-                          size="sm"
-                          className="bg-teal-600 hover:bg-teal-700"
-                        >
-                          <Video className="h-4 w-4 mr-1" />
-                          Join
-                        </Button>
-                      </Link>
-                    )}
-                    {apt.status === "CONFIRMED" && (
+                    {(apt.status === "CONFIRMED" ||
+                      apt.status === "RESCHEDULED") &&
+                      apt.meetingLink && (
+                        <Link href={`/doctor/consultation/${apt.id}`}>
+                          <Button
+                            size="sm"
+                            className="bg-teal-600 hover:bg-teal-700"
+                          >
+                            <Video className="h-4 w-4 mr-1" />
+                            Join
+                          </Button>
+                        </Link>
+                      )}
+                    {(apt.status === "CONFIRMED" ||
+                      apt.status === "RESCHEDULED") && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
