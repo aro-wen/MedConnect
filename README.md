@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MedConnect - Telehealth Platform
 
-## Getting Started
+┌─────────────────────────────────────────────────────────────────────────┐
+│ MedConnect │ Next.js 14 │ TypeScript │ Prisma │ SQLite │ JWT │
+└─────────────────────────────────────────────────────────────────────────┘
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+MedConnect is a modern telehealth web application that bridges the gap
+between patients and healthcare providers. Built during the WC Launchpad
+2026 Builder Round, this platform enables seamless online consultations,
+appointment scheduling, and medical record management.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+┌─────────────┬─────────────────────────────┬─────────────────────────────┐
+│ Layer │ Technology │ Purpose │
+├─────────────┼─────────────────────────────┼─────────────────────────────┤
+│ Frontend │ Next.js 14 (App Router) │ React framework with SSR │
+│ Language │ TypeScript │ Type-safe development │
+│ Styling │ Tailwind CSS + Shadcn UI │ Utility-first CSS │
+│ Backend │ Next.js API Routes │ Serverless API endpoints │
+│ Database │ SQLite + Prisma ORM │ File-based relational DB │
+│ Auth │ Custom JWT + bcrypt │ Stateless authentication │
+│ Video │ Jitsi Meet (iframe) │ Free video conferencing │
+│ Deployment │ Vercel │ Edge-optimized hosting │
+└─────────────┴─────────────────────────────┴─────────────────────────────┘
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+### Patient Module
 
-To learn more about Next.js, take a look at the following resources:
+✅ Account Registration ✅ Doctor Discovery
+✅ AI Recommendation ✅ Appointment Booking
+✅ Video Consultation ✅ Medical Records
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Doctor Module
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+✅ Doctor Registration ✅ Schedule Management
+✅ Appointment Dashboard ✅ Patient Records
+✅ Prescription & Notes ✅ Video Consultation
 
-## Deploy on Vercel
+## Demo Credentials
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+┌──────────────────────────────┬─────────────┬──────────────────┐
+│ Email │ Password │ Specialization │
+├──────────────────────────────┼─────────────┼──────────────────┤
+│ dr.smith@telehealth.com │ password123 │ Cardiology │
+│ dr.johnson@telehealth.com │ password123 │ Neurology │
+│ dr.lee@telehealth.com │ password123 │ Dermatology │
+│ dr.patel@telehealth.com │ password123 │ Pediatrics │
+│ dr.garcia@telehealth.com │ password123 │ Orthopedics │
+│ dr.chen@telehealth.com │ password123 │ Psychiatry │
+│ dr.wilson@telehealth.com │ password123 │ Gastroenterology │
+│ dr.brown@telehealth.com │ password123 │ General Practice │
+└──────────────────────────────┴─────────────┴──────────────────┘
