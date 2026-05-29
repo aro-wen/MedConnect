@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -303,6 +304,9 @@ export default function DoctorsPage() {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Book with {doctor.name}</DialogTitle>
+                      <DialogDescription>
+                        Select a date and time for your consultation.
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 pt-4">
                       <div>

@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,6 +217,10 @@ export default function DoctorAppointments() {
                             <DialogTitle>
                               Complete Consultation - {apt.patient.name}
                             </DialogTitle>
+                            <DialogDescription>
+                              Enter diagnosis, prescription, and notes for the
+                              patient.
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4 pt-4">
                             <div>
