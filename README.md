@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/MedConnect-0D9488?style=for-the-badge&logo=stethoscope&logoColor=white" alt="MedConnect" />
+<a href="https://med-connect-five.vercel.app" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/MedConnect-0D9488?style=for-the-badge&logo=stethoscope&logoColor=white" alt="MedConnect" /></a>
 
 # 🩺 MedConnect
 
