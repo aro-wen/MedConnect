@@ -14,12 +14,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
-import { Stethoscope, Loader2 } from "lucide-react";
+import { Stethoscope, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const { login } = useAuth();
   const router = useRouter();
@@ -82,14 +83,29 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="flex-1"
+                  required
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-transparent text-sm hover:bg-muted"
+                  onClick={() => setShowPassword((s) => !s)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-600" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-600" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button
               type="submit"

@@ -33,6 +33,7 @@
   - [Installation](#installation)
   - [Environment Variables](#environment-variables)
   - [Database Setup](#database-setup)
+  - [Demo Credentials](#demo-credentials)
 - [Project Structure](#-project-structure)
 - [API Reference](#-api-reference)
 - [Screenshots](#-screenshots)

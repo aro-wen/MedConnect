@@ -14,13 +14,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
-import { Stethoscope, Loader2 } from "lucide-react";
+import { Stethoscope, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 function RegisterForm() {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [specialization, setSpecialization] = React.useState("");
   const [bio, setBio] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
@@ -104,14 +105,29 @@ function RegisterForm() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Create a password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="flex-1"
+                  required
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-transparent text-sm hover:bg-muted"
+                  onClick={() => setShowPassword((s) => !s)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-600" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-600" />
+                  )}
+                </button>
+              </div>
             </div>
             {defaultRole === "DOCTOR" && (
               <>
