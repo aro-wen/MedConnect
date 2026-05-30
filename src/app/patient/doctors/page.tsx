@@ -32,6 +32,8 @@ import {
   DollarSign,
   Stethoscope,
   Clock,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -54,6 +56,7 @@ interface Doctor {
 }
 
 interface Availability {
+  id: string;
   dayOfWeek: number;
   startTime: string;
   endTime: string;
@@ -92,15 +95,7 @@ const symptomToSpecialty: Record<string, string> = {
   digestion: "Gastroenterology",
 };
 
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function DoctorsPage() {
   const { token } = useAuth();
@@ -200,6 +195,28 @@ export default function DoctorsPage() {
     setBookingTime("");
   };
 
+  // Get only available days (for weekly preview)
+  const getAvailableDays = (): Availability[] => {
+    return doctorAvailability.filter((a) => a.isAvailable);
+  };
+
+  // Check if a specific date is available
+  const isDateAvailable = (dateStr: string): boolean => {
+    if (!dateStr || doctorAvailability.length === 0) return false;
+    const dayOfWeek = new Date(dateStr).getDay();
+    return doctorAvailability.some(
+      (a) => a.dayOfWeek === dayOfWeek && a.isAvailable,
+    );
+  };
+
+  // Get availability for a specific day
+  const getDayAvailability = (dayOfWeek: number): Availability | undefined => {
+    return doctorAvailability.find(
+      (a) => a.dayOfWeek === dayOfWeek && a.isAvailable,
+    );
+  };
+
+  // Generate time slots for selected date
   const getAvailableTimeSlots = (): string[] => {
     if (!bookingDate || doctorAvailability.length === 0) return [];
 
@@ -236,16 +253,23 @@ export default function DoctorsPage() {
     return slots;
   };
 
-  const getDayAvailabilityText = (): string => {
-    if (!bookingDate || doctorAvailability.length === 0) return "";
-    const dayOfWeek = new Date(bookingDate).getDay();
-    const daySlots = doctorAvailability.filter(
-      (a) => a.dayOfWeek === dayOfWeek && a.isAvailable,
-    );
-    if (daySlots.length === 0) {
-      return `${DAYS[dayOfWeek]}: Not available`;
+  const handleDateChange = (dateStr: string) => {
+    if (!dateStr) {
+      setBookingDate("");
+      setBookingTime("");
+      return;
     }
-    return `${DAYS[dayOfWeek]}: ${daySlots.map((s) => `${s.startTime}-${s.endTime}`).join(", ")}`;
+
+    if (!isDateAvailable(dateStr)) {
+      const dayOfWeek = new Date(dateStr).getDay();
+      toast.error(
+        `${selectedDoctor?.name} is not available on ${DAYS[dayOfWeek]}. Please select an available day.`,
+      );
+      return;
+    }
+
+    setBookingDate(dateStr);
+    setBookingTime("");
   };
 
   const handleBook = async () => {
@@ -408,26 +432,68 @@ export default function DoctorsPage() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 pt-4">
+                      {/* Weekly Availability Preview */}
+                      {doctorAvailability.length > 0 && (
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                            <Clock className="h-4 w-4 text-teal-600" />
+                            Available Days
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {DAYS.map((day, i) => {
+                              const avail = getDayAvailability(i);
+                              return (
+                                <div
+                                  key={i}
+                                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                                    avail
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-gray-100 text-gray-400"
+                                  }`}
+                                >
+                                  {avail ? (
+                                    <CheckCircle2 className="h-3 w-3" />
+                                  ) : (
+                                    <XCircle className="h-3 w-3" />
+                                  )}
+                                  {day}
+                                  {avail && (
+                                    <span className="ml-1">
+                                      {avail.startTime}-{avail.endTime}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       <div>
                         <Label>Date</Label>
                         <Input
                           type="date"
                           value={bookingDate}
-                          onChange={(e) => {
-                            setBookingDate(e.target.value);
-                            setBookingTime("");
-                          }}
+                          onChange={(e) => handleDateChange(e.target.value)}
                           min={new Date().toISOString().split("T")[0]}
                         />
                         {bookingDate && (
-                          <p className="text-xs text-teal-600 mt-1 flex items-center gap-1">
+                          <p
+                            className={`text-xs mt-1 flex items-center gap-1 ${
+                              isDateAvailable(bookingDate)
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
                             <Clock className="h-3 w-3" />
-                            {getDayAvailabilityText()}
+                            {isDateAvailable(bookingDate)
+                              ? `${DAYS[new Date(bookingDate).getDay()]}: Available`
+                              : `${DAYS[new Date(bookingDate).getDay()]}: Not available - pick another day`}
                           </p>
                         )}
                       </div>
 
-                      {bookingDate && (
+                      {bookingDate && isDateAvailable(bookingDate) && (
                         <div>
                           <Label>Time</Label>
                           {getAvailableTimeSlots().length > 0 ? (
