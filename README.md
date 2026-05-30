@@ -226,6 +226,25 @@ npx prisma db seed
 npx prisma studio
 ```
 
+### Demo Credentials
+
+The project includes seeded demo doctor accounts (created by the seeding script). Use these to sign in as a doctor in the demo environment:
+
+- **Dr. Sarah Smith** — Email: dr.smith@telehealth.com Password: password123
+- **Dr. Michael Johnson** — Email: dr.johnson@telehealth.com Password: password123
+- **Dr. Emily Lee** — Email: dr.lee@telehealth.com Password: password123
+- **Dr. Raj Patel** — Email: dr.patel@telehealth.com Password: password123
+- **Dr. Carlos Garcia** — Email: dr.garcia@telehealth.com Password: password123
+- **Dr. Lisa Chen** — Email: dr.chen@telehealth.com Password: password123
+- **Dr. James Wilson** — Email: dr.wilson@telehealth.com Password: password123
+- **Dr. Amanda Brown** — Email: dr.brown@telehealth.com Password: password123
+
+Patient demo account (use to sign in as a patient):
+
+- **Jane Doe (Patient)** — Email: janedoe.patient@demo.com Password: test123!
+
+Note: Run `npx prisma db seed` or call the seed API (`POST /api/seed`) to recreate these demo accounts.
+
 ### Development Server
 
 ```bash
