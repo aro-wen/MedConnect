@@ -6,7 +6,7 @@ const doctors = [
   {
     email: "dr.smith@telehealth.com",
     password: "password123",
-    name: "Dr. Sarah Smith",
+    name: "Sarah Smith",
     role: "DOCTOR",
     specialization: "Cardiology",
     bio: "Board-certified cardiologist with 15 years of experience in treating heart conditions and cardiovascular diseases.",
@@ -24,7 +24,7 @@ const doctors = [
   {
     email: "dr.johnson@telehealth.com",
     password: "password123",
-    name: "Dr. Michael Johnson",
+    name: "Michael Johnson",
     role: "DOCTOR",
     specialization: "Neurology",
     bio: "Expert neurologist specializing in headaches, migraines, and nervous system disorders.",
@@ -41,7 +41,7 @@ const doctors = [
   {
     email: "dr.lee@telehealth.com",
     password: "password123",
-    name: "Dr. Emily Lee",
+    name: "Emily Lee",
     role: "DOCTOR",
     specialization: "Dermatology",
     bio: "Specialist in skin conditions, cosmetic dermatology, and skin cancer screening.",
@@ -59,7 +59,7 @@ const doctors = [
   {
     email: "dr.patel@telehealth.com",
     password: "password123",
-    name: "Dr. Raj Patel",
+    name: "Raj Patel",
     role: "DOCTOR",
     specialization: "Pediatrics",
     bio: "Compassionate pediatrician with expertise in child development and preventive care.",
@@ -77,7 +77,7 @@ const doctors = [
   {
     email: "dr.garcia@telehealth.com",
     password: "password123",
-    name: "Dr. Carlos Garcia",
+    name: "Carlos Garcia",
     role: "DOCTOR",
     specialization: "Orthopedics",
     bio: "Orthopedic surgeon specializing in sports injuries, joint replacement, and fracture care.",
@@ -95,7 +95,7 @@ const doctors = [
   {
     email: "dr.chen@telehealth.com",
     password: "password123",
-    name: "Dr. Lisa Chen",
+    name: "Lisa Chen",
     role: "DOCTOR",
     specialization: "Psychiatry",
     bio: "Board-certified psychiatrist focusing on anxiety, depression, and cognitive behavioral therapy.",
@@ -112,7 +112,7 @@ const doctors = [
   {
     email: "dr.wilson@telehealth.com",
     password: "password123",
-    name: "Dr. James Wilson",
+    name: "James Wilson",
     role: "DOCTOR",
     specialization: "Gastroenterology",
     bio: "Expert in digestive health, IBD, and liver diseases with advanced endoscopy skills.",
@@ -130,7 +130,7 @@ const doctors = [
   {
     email: "dr.brown@telehealth.com",
     password: "password123",
-    name: "Dr. Amanda Brown",
+    name: "Amanda Brown",
     role: "DOCTOR",
     specialization: "General Practice",
     bio: "Family medicine physician providing comprehensive primary care for all ages.",
