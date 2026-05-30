@@ -14,7 +14,6 @@
 [![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)](https://www.prisma.io/)
 
 [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com)
-[![License](https://img.shields.io/badge/License-MIT-0D9488?style=flat-square)](LICENSE)
 
 </div>
 
@@ -40,7 +39,6 @@
 - [Deployment](#-deployment)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
@@ -435,12 +433,6 @@ Contributions are welcome! Please follow these steps:
 5. **Open** a Pull Request
 
 Please ensure your code follows the existing style and includes appropriate tests.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
